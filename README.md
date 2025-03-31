@@ -2,18 +2,18 @@
 
 ##MVP
 
-Build the application to track the following: 
+### Build the application to track the following: 
 
 	1. Products (items with prices)
 	2. Stock quantities ( current stock, additions, and deliveries)
 	3. Daily operations ( cooked products and remaining products)
 	4. Sales calculations ( Total stocks - cooked and remaining * price per product)
 
-The application has 2 entities: 
+### The application has 2 entities: 
 	1. Product entity
-		○ Id (PK)
-		○ Name 
-		○ Price
+		- Id (PK)
+		- Name 
+		- Price
 	2. Inventory 
 		○ Id (PK)
 		○ productId(FK)
@@ -27,15 +27,15 @@ The application has 2 entities:
 		○ Sold ( calculated - totalStock - cooked - remaining)
 		○ SalesPerStock ( Sold * product.price)
 
-Endpoints:
+### Endpoints:
 
-Product Endpoints
-
-GET   / api/products - Get all products
-GET   /api/products/{id} - Get product by ID
-POST /api/products - Create new product
-PUT /api/products/{id} - Update Product 
-DELETE /api/products/{id} - Delete Product
+### Product Endpoints
+	
+ 	- GET   / api/products - Get all products
+	- GET   /api/products/{id} - Get product by ID
+	- POST /api/products - Create new product
+	- PUT /api/products/{id} - Update Product 
+	- DELETE /api/products/{id} - Delete Product
 
 Inventory Endpoints
 
