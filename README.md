@@ -29,7 +29,7 @@
 
 ### Endpoints:
 
-### Product Endpoints
+#### Product Endpoints
 	
  	- GET   / api/products - Get all products
 	- GET   /api/products/{id} - Get product by ID
@@ -37,27 +37,27 @@
 	- PUT /api/products/{id} - Update Product 
 	- DELETE /api/products/{id} - Delete Product
 
-Inventory Endpoints
+#### Inventory Endpoints
 
-GET   / api/inventory - Get all inventory 
-GET   /api/inventory /{date} - Get inventory by date
-GET    /api/inventory /product/{productId} - Get inventory by product
-POST /api/inventory  - Create new inventory Entry 
-PUT /api/inventory  /{id} - Update inventory entry
+	- GET   / api/inventory - Get all inventory 
+	- GET   /api/inventory /{date} - Get inventory by date
+	- GET    /api/inventory /product/{productId} - Get inventory by product
+	- POST /api/inventory  - Create new inventory Entry 
+	- PUT /api/inventory  /{id} - Update inventory entry
 
 
-REPORT 
+#### REPORT 
 
-GET /api/reports/daily/{date}  - Get daily sales report
-GET /api/reports/product/{productId} - Get product Sales report
-GET /api/reports/range?start={startDate}&end={endDate}
+	- GET /api/reports/daily/{date}  - Get daily sales report
+	- GET /api/reports/product/{productId} - Get product Sales report
+	- GET /api/reports/range?start={startDate}&end={endDate}
 
-Tech Stack
+### Tech Stack
 
-Spring Boot 
-Java
-React with Typescript
-Axios
-Redux
+	- Spring Boot 
+	- Java
+	- React with Typescript
+	- Axios
+	- Redux
 
 ![image](https://github.com/user-attachments/assets/19f35e9f-7547-4876-a645-6fdf55a1c084)
