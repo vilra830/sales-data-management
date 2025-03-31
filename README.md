@@ -1,6 +1,6 @@
 # sales-data-management
 
-##MVP
+## MVP
 
 ### Build the application to track the following: 
 
@@ -60,4 +60,3 @@
 	- Axios
 	- Redux
 
-![image](https://github.com/user-attachments/assets/19f35e9f-7547-4876-a645-6fdf55a1c084)
