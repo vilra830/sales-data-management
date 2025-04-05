@@ -13,7 +13,7 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long>{
     List<Inventory> findByDate(LocalDate date);
     List<Inventory> findByProduct(Product product);
     List<Inventory> findByDateBetween(LocalDate startDate, LocalDate endDate);
-    Inventory findByProductAndDate(Long id, LocalDate date);
+    Inventory findOneInventoryByProductAndDate(Product product, LocalDate date);
     List<Inventory> findByProductAndDate(Product product, LocalDate date);
     List<Inventory> findByProductAndDateBetween(Product product, LocalDate start, LocalDate end);
 }

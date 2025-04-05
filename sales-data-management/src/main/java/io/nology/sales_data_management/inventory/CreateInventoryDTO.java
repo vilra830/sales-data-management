@@ -28,8 +28,20 @@ public class CreateInventoryDTO {
     @Positive(message = "Cooked products must be greater than zero")
     private Integer cookedProducts;
 
+    @NotNull(message = "Remaining products is required")
+    @Positive(message = "Remaining products must be greater than zero")
+    private Integer remainingStock;
+
     public Long getProductId() {
         return productId;
+    }
+
+    public Integer getRemainingStock() {
+        return remainingStock;
+    }
+
+    public void setRemainingStock(Integer remainingStock) {
+        this.remainingStock = remainingStock;
     }
 
     public void setProductId(Long productId) {

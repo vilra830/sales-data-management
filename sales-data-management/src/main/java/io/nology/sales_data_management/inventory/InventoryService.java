@@ -6,13 +6,16 @@ import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import io.nology.sales_data_management.common.exceptions.BadRequestException;
 import io.nology.sales_data_management.common.exceptions.NotFoundException;
 import io.nology.sales_data_management.product.Product;
 import io.nology.sales_data_management.product.ProductService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 
+@Service
 public class InventoryService {
 
     @Autowired
@@ -25,12 +28,31 @@ public class InventoryService {
     private ModelMapper modelMapper;
     
     public Inventory createInventory(CreateInventoryDTO newInventoryData) {
-        Inventory existingEntry = inventoryRepository.findByProductAndDate(newInventoryData.getProductId(), newInventoryData.getDate());
+        Product product = productService.getProductById(newInventoryData.getProductId());
+        System.out.println("Product ID: " + product.getId());
+
+        Inventory existingEntry = inventoryRepository.findOneInventoryByProductAndDate(product, newInventoryData.getDate());
         if(existingEntry != null ){
             throw new BadRequestException("Inventory already exists");
         }
-        Inventory inventory = modelMapper.map(newInventoryData, Inventory.class);
-        return inventoryRepository.save(inventory);
+        
+        // Inventory inventory = modelMapper.map(newInventoryData, Inventory.class);
+        // inventory.setProduct(product);
+        // System.out.println("Inventory before save: " + inventory);
+        Inventory inventory = new Inventory();
+    inventory.setProduct(product);
+    inventory.setDate(newInventoryData.getDate());
+    inventory.setOpeningStock(newInventoryData.getOpeningStock());
+    inventory.setAdditions(newInventoryData.getAdditions());
+    inventory.setDeliveries(newInventoryData.getDeliveries());
+    inventory.setCookedProducts(newInventoryData.getCookedProducts());
+    inventory.setRemainingStock(newInventoryData.getRemainingStock());
+    
+
+        Inventory savedInventory = inventoryRepository.save(inventory);
+        System.out.println("Inventory after save: " + savedInventory);
+        return savedInventory;
+
     }
 
     public Inventory updateInventory(Long id, UpdateInventoryDTO updateInventoryDTO) {

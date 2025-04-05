@@ -28,7 +28,7 @@ public class InventoryController {
     @Autowired
     private InventoryService inventoryService;
 
-    @PostMapping
+    @PostMapping()
     public ResponseEntity<Inventory> createInventory(@RequestBody @Valid CreateInventoryDTO createInventoryDTO) {
         Inventory inventory = inventoryService.createInventory(createInventoryDTO);
         return new ResponseEntity<>(inventory, HttpStatus.CREATED);
