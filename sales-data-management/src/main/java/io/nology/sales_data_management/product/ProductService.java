@@ -1,37 +1,58 @@
 package io.nology.sales_data_management.product;
 
 import java.util.List;
+import java.util.Optional;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import io.nology.sales_data_management.common.exceptions.NotFoundException;
 import jakarta.validation.Valid;
 
 @Service
 public class ProductService {
 
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private ModelMapper modelMapper;
+
+
     public List<Product> getAllProducts() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllProducts'");
+        return productRepository.findAll();
     }
 
     public Product getProductById(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getProductById'");
+
+        return productRepository.findById(id).orElseThrow(() -> new NotFoundException("Product with ID "+ id  +" is not found"));
     }
 
     public Product createProduct(CreateProductDTO newProduct) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createProduct'");
+        Product product = modelMapper.map(newProduct, Product.class );
+        return productRepository.save(product);
     }
 
-    public Product updateProduct(UpdateProductDTO updatedProduct) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateProduct'");
+    public Product updateProduct(Long id, UpdateProductDTO updatedProduct) {
+        Optional<Product> result = productRepository.findById(id);
+        if(result.isEmpty()){
+            throw new NotFoundException("No Product with such ID " + id + " is found");
+        }
+
+        Product product = result.get();
+        modelMapper.map(updatedProduct, product);
+        return productRepository.save(product);
+        
     }
 
     public void deleteProduct(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteProduct'");
+        Optional<Product> result = productRepository.findById(id);
+        if(result.isEmpty()){
+            throw new NotFoundException("No Product with such ID " + id + " is found");
+        }
+        productRepository.deleteById(id);
+      
     }
 
 }

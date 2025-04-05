@@ -154,8 +154,6 @@ public class Inventory {
         this.totalStock = totalStock;
     }
 
-
-  
     public Integer getSold() {
         if(sold == null) {
             sold = getTotalStock() - getCookedProducts() - getRemainingStock();
