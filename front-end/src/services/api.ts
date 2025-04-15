@@ -49,7 +49,32 @@ export const getInventoryByProduct = async (
 export const createInventoryEntry = async (
   inventory: Inventory
 ): Promise<Inventory> => {
-  const response = await axios.post(`${API_URL}/inventory`, inventory);
+  if (!inventory.product.id) {
+    throw new Error("Product ID is required");
+  }
+
+  const latestInventory = await getLatestInventoryBeforeDate(
+    inventory.product.id,
+    inventory.date
+  );
+
+  // Calculate opening stock if previous day exists
+  if (latestInventory) {
+    inventory.openingStock = latestInventory.remainingStock || 0;
+  } else {
+    inventory.openingStock = 0;
+  }
+  const payload = {
+    productId: inventory.product.id,
+    date: inventory.date,
+    openingStock: inventory.openingStock,
+    additions: inventory.additions,
+    deliveries: inventory.deliveries,
+    cookedProducts: inventory.cookedProducts,
+    remainingStock: inventory.remainingStock,
+  };
+
+  const response = await axios.post(`${API_URL}/inventory`, payload);
   return response.data;
 };
 
@@ -62,12 +87,12 @@ export const updateInventoryEntry = async (
 };
 
 // Reports API calls
-export const getDailyReportByProduct = async (
+export const getDailyReportByProductAndDate = async (
   id: number,
   date: string
 ): Promise<Inventory[]> => {
   const response = await axios.get(
-    `${API_URL}/reports/${id}/date?date=${date}`
+    `${API_URL}/inventory/reports/${id}/date?date=${date}`
   );
   return response.data;
 };
@@ -78,7 +103,7 @@ export const getDateRangeReportByProduct = async (
   endDate: string
 ): Promise<Inventory[]> => {
   const response = await axios.get(
-    `${API_URL}/reports/${id}/range?start=${startDate}&end=${endDate}`
+    `${API_URL}/inventory/reports/${id}/range?start=${startDate}&end=${endDate}`
   );
   return response.data;
 };
@@ -88,7 +113,17 @@ export const getDateRangeReport = async (
   endDate: string
 ): Promise<Inventory[]> => {
   const response = await axios.get(
-    `${API_URL}/reports/range?start=${startDate}&end=${endDate}`
+    `${API_URL}/inventory/reports/range?start=${startDate}&end=${endDate}`
+  );
+  return response.data;
+};
+
+export const getLatestInventoryBeforeDate = async (
+  productId: number,
+  date: string
+): Promise<Inventory | null> => {
+  const response = await axios.get(
+    `${API_URL}/inventory/latest-before?productId=${productId}&date=${date}`
   );
   return response.data;
 };

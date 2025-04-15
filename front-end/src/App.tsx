@@ -1,35 +1,36 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from "react";
+import { Provider } from "react-redux";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  Link,
+} from "react-router-dom";
 
-function App() {
-  const [count, setCount] = useState(0)
+import "./App.css";
+import ProductManager from "./components/ProductManager/ProductManager";
+import { store } from "./state/store";
+import InventoryManager from "./components/ProductManager/InventoryManager/InventoryManager";
 
+const App: React.FC = () => {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <Provider store={store}>
+      <Router>
+        <nav style={{ padding: "1rem", background: "#f0f0f0" }}>
+          <Link to="/" style={{ marginRight: "1rem" }}>
+            Products
+          </Link>
+          <Link to="/inventory">Inventory</Link>
+        </nav>
 
-export default App
+        <Routes>
+          <Route path="/" element={<ProductManager />} />
+          <Route path="/inventory" element={<InventoryManager />} />
+        </Routes>
+      </Router>
+    </Provider>
+  );
+};
+
+export default App;

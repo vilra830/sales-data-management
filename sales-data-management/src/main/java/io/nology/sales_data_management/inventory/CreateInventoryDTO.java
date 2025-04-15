@@ -13,23 +13,18 @@ public class CreateInventoryDTO {
     private LocalDate date;
 
     @NotNull(message = "Opening stock is required")
-    @Positive(message = "Opening stock must be greater than zero")
     private Integer openingStock;
 
     @NotNull(message = "Additions is required")
-    @Positive(message = "Additions must be greater than zero")
     private Integer additions;
 
     @NotNull(message = "Deliveries is required")
-    @Positive(message = "Deliveries must be greater than zero")
     private Integer deliveries;
 
     @NotNull(message = "Cooked products is required")
-    @Positive(message = "Cooked products must be greater than zero")
     private Integer cookedProducts;
 
     @NotNull(message = "Remaining products is required")
-    @Positive(message = "Remaining products must be greater than zero")
     private Integer remainingStock;
 
     public Long getProductId() {

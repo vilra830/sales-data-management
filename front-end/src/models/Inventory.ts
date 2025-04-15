@@ -13,7 +13,7 @@ export interface Inventory {
   //Calculated Fields
   totalStock?: number;
   sold?: number;
-  totalSales?: number;
+  totalSalesPerProduct?: number;
   totalluto?: number;
   totalHilaw?: number;
 }

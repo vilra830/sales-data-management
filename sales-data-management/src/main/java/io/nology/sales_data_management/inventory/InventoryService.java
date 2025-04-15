@@ -122,4 +122,11 @@ public class InventoryService {
         return inventoryList;
     }
 
+    public Inventory getLatestInventoryBeforeDate(Long productId, LocalDate date) {
+        Product product = productService.getProductById(productId);
+        return inventoryRepository.findTopByProductAndDateBeforeOrderByDateDesc(product, date)
+            .orElse(null);
+    }
+
+
 }

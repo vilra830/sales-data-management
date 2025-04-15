@@ -46,26 +46,26 @@ public class InventoryController {
         return new ResponseEntity<>(inventory, HttpStatus.OK);
     }
     
-    @GetMapping("/{id}")
+    @GetMapping("/product/{id}")
     public ResponseEntity<List<Inventory>> getInventoryByProductId(@PathVariable Long id) {
         List <Inventory> inventoryList = inventoryService.getInventoryByProductId(id);
         return new ResponseEntity<>(inventoryList, HttpStatus.OK);
     }
 
-    @GetMapping("/date/{date}")
+    @GetMapping("/{date}")
     public ResponseEntity<List<Inventory>> getInventoryByDate(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         List<Inventory> inventoryList = inventoryService.getInventoryByDate(date);
         return new ResponseEntity<>(inventoryList, HttpStatus.OK);
     }
 
-    @GetMapping("/range")
+    @GetMapping("/reports/range")
     public List<Inventory> getInventoryByDateRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
         return inventoryService.getInventoryByDateRange(start, end);
     }
 
-    @GetMapping("/product/{productId}/date")
+    @GetMapping("/reports/{productId}/date")
     public ResponseEntity<List<Inventory>> getInventoryByProductAndDate(
             @PathVariable Long productId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
@@ -73,7 +73,7 @@ public class InventoryController {
         return ResponseEntity.ok(inventoryList);
     }
     
-    @GetMapping("/product/{productId}/date-range")
+    @GetMapping("/reports/{productId}/range")
     public ResponseEntity<List<Inventory>> getInventoryByProductAndDateRange(
             @PathVariable Long productId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
@@ -81,5 +81,13 @@ public class InventoryController {
         List<Inventory> inventoryList = inventoryService.getInventoryByProductAndDateRange(productId, start, end);
         return ResponseEntity.ok(inventoryList);
     }
+
+    @GetMapping("/latest-before")
+public ResponseEntity<Inventory> getLatestBeforeDate(
+        @RequestParam Long productId,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+    Inventory inventory = inventoryService.getLatestInventoryBeforeDate(productId, date);
+    return ResponseEntity.ok(inventory);
+}
 
 }

@@ -7,7 +7,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import io.nology.sales_data_management.common.exceptions.BadRequestException;
 import io.nology.sales_data_management.common.exceptions.NotFoundException;
+import io.nology.sales_data_management.inventory.Inventory;
+import io.nology.sales_data_management.inventory.InventoryRepository;
 import jakarta.validation.Valid;
 
 @Service
@@ -18,6 +21,9 @@ public class ProductService {
 
     @Autowired
     private ModelMapper modelMapper;
+
+    @Autowired
+    private InventoryRepository inventoryRepository;
 
 
     public List<Product> getAllProducts() {
@@ -50,6 +56,12 @@ public class ProductService {
         Optional<Product> result = productRepository.findById(id);
         if(result.isEmpty()){
             throw new NotFoundException("No Product with such ID " + id + " is found");
+        }
+        Product product = result.get();
+        List<Inventory> inventoryList = inventoryRepository.findByProduct(product);
+        
+        if (!inventoryList.isEmpty()) {
+            throw new BadRequestException("Cannot delete product with existing inventory.");
         }
         productRepository.deleteById(id);
       
