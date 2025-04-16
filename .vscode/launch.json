@@ -1,0 +1,14 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot-SalesDataManagementApplication<sales-data-management>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "io.nology.sales_data_management.SalesDataManagementApplication",
+      "projectName": "sales-data-management",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}

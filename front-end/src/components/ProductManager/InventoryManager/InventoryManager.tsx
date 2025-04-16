@@ -90,9 +90,11 @@ const InventoryManager: React.FC = () => {
       const result = await createInventoryEntry(formData);
       alert("Inventory created!");
       setInventory([...inventory, result]);
+      
     } catch (error) {
       console.error("Error creating inventory:", error);
     }
+    
   };
 
   return (

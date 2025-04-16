@@ -36,13 +36,13 @@ public class InventoryService {
             throw new BadRequestException("Inventory already exists");
         }
         
-        // Inventory inventory = modelMapper.map(newInventoryData, Inventory.class);
-        // inventory.setProduct(product);
-        // System.out.println("Inventory before save: " + inventory);
+        Inventory lasInventory = getLatestInventoryBeforeDate(product.getId(), newInventoryData.getDate());
+        int openingStock = lasInventory != null ? lasInventory.getRemainingStock() : 0;
+
         Inventory inventory = new Inventory();
     inventory.setProduct(product);
     inventory.setDate(newInventoryData.getDate());
-    inventory.setOpeningStock(newInventoryData.getOpeningStock());
+    inventory.setOpeningStock(openingStock);
     inventory.setAdditions(newInventoryData.getAdditions());
     inventory.setDeliveries(newInventoryData.getDeliveries());
     inventory.setCookedProducts(newInventoryData.getCookedProducts());

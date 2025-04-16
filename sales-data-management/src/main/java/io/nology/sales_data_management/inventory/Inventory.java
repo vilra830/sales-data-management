@@ -14,7 +14,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
 @Entity
-@Table(name = "iventory")
+@Table(name = "inventory")
 public class Inventory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +24,7 @@ public class Inventory {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
+    
     private LocalDate date;
 
     private Integer openingStock;

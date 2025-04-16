@@ -17,7 +17,7 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable=false)
+    @Column(unique=true, nullable=false )
     private String name;
 
     @Column(nullable=false)
@@ -47,4 +47,10 @@ public class Product {
         this.price = price;
     }
 
+    public Product(String name, BigDecimal price) {
+        this.name = name;
+        this.price = price;
+    }
+
+    public Product(){};
 }

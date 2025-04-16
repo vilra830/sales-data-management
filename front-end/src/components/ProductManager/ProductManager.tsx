@@ -24,9 +24,7 @@ const ProductManager: React.FC = () => {
     name: "",
     price: 0,
   });
-  const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [editId, setEditId] = useState<number | null>(null);
-
+  const [customError, setCustomError] = useState<string | null>(null);
 
   const dispatch = useAppDispatch();
   const { products, loading, error } = useAppSelector(
@@ -47,6 +45,16 @@ const ProductManager: React.FC = () => {
   }, [dispatch]);
 
   const onSubmit = (data: ProductFormData) => {
+    const isDuplicate = products.some(
+      (p) => p.name.toLowerCase().trim() === data.name.toLowerCase().trim()
+    );
+
+    if (isDuplicate) {
+      setCustomError("A product with this name already exists.");
+      return;
+    }
+
+    setCustomError(null);
     dispatch(addProduct(data));
     reset();
   };
@@ -62,14 +70,8 @@ const ProductManager: React.FC = () => {
       dispatch(fetchProducts()); // <- refresh the product list
     } catch (error) {
       console.error("Error deleting product:", error);
-      alert("Failed to delete product. Please try again.");
+      alert("Cannot delete a product with existing inventory");
     }
-  };
-
-  const handleUpdate = (product: Product) => {
-    setFormData(product);
-    setIsEditing(true);
-    setEditId(product.id || null);
   };
 
   return (
@@ -80,6 +82,7 @@ const ProductManager: React.FC = () => {
         <div className={styles.formGroup}>
           <label>Name:</label>
           <input {...register("name")} />
+          {customError && <p className={styles.error}>{customError}</p>}
           {errors.name && <p className={styles.error}>{errors.name.message}</p>}
         </div>
 
@@ -110,6 +113,7 @@ const ProductManager: React.FC = () => {
           <tr>
             <th>Product Name</th>
             <th>Price (₱)</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -117,7 +121,7 @@ const ProductManager: React.FC = () => {
             <tr key={product.id}>
               <td>{product.name}</td>
               <td>{product.price.toFixed(2)}</td>
-              <td>
+              <td className={styles.actions}>
                 <button
                   className={styles.deleteButton}
                   onClick={() =>
@@ -125,14 +129,6 @@ const ProductManager: React.FC = () => {
                   }
                 >
                   Delete
-                </button>
-              </td>
-              <td>
-                <button
-                  className={styles.deleteButton}
-                  onClick={() => handleUpdate(product)}
-                >
-                  Update
                 </button>
               </td>
             </tr>

@@ -31,11 +31,14 @@ public class ProductService {
     }
 
     public Product getProductById(Long id) {
-
         return productRepository.findById(id).orElseThrow(() -> new NotFoundException("Product with ID "+ id  +" is not found"));
     }
 
     public Product createProduct(CreateProductDTO newProduct) {
+        Optional<Product> existing = productRepository.findByName(newProduct.getName());
+        if(existing.isPresent()){
+            throw new BadRequestException("Product name must be unique");
+        }
         Product product = modelMapper.map(newProduct, Product.class );
         return productRepository.save(product);
     }
@@ -45,7 +48,6 @@ public class ProductService {
         if(result.isEmpty()){
             throw new NotFoundException("No Product with such ID " + id + " is found");
         }
-
         Product product = result.get();
         modelMapper.map(updatedProduct, product);
         return productRepository.save(product);
@@ -63,8 +65,7 @@ public class ProductService {
         if (!inventoryList.isEmpty()) {
             throw new BadRequestException("Cannot delete product with existing inventory.");
         }
-        productRepository.deleteById(id);
-      
+        productRepository.deleteById(id);      
     }
 
 }

@@ -53,21 +53,9 @@ export const createInventoryEntry = async (
     throw new Error("Product ID is required");
   }
 
-  const latestInventory = await getLatestInventoryBeforeDate(
-    inventory.product.id,
-    inventory.date
-  );
-
-  // Calculate opening stock if previous day exists
-  if (latestInventory) {
-    inventory.openingStock = latestInventory.remainingStock || 0;
-  } else {
-    inventory.openingStock = 0;
-  }
   const payload = {
     productId: inventory.product.id,
     date: inventory.date,
-    openingStock: inventory.openingStock,
     additions: inventory.additions,
     deliveries: inventory.deliveries,
     cookedProducts: inventory.cookedProducts,
