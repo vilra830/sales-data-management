@@ -2,6 +2,7 @@ package io.nology.sales_data_management.inventory;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -16,4 +17,5 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long>{
     Inventory findOneInventoryByProductAndDate(Product product, LocalDate date);
     List<Inventory> findByProductAndDate(Product product, LocalDate date);
     List<Inventory> findByProductAndDateBetween(Product product, LocalDate start, LocalDate end);
+    Optional<Inventory> findTopByProductAndDateBeforeOrderByDateDesc(Product product, LocalDate date);
 }

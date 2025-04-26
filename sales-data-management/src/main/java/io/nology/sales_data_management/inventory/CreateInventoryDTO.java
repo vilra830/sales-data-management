@@ -3,7 +3,6 @@ package io.nology.sales_data_management.inventory;
 import java.time.LocalDate;
 
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 
 public class CreateInventoryDTO {
     @NotNull(message = "Product is required")
@@ -12,24 +11,16 @@ public class CreateInventoryDTO {
     @NotNull(message = "Date is required")
     private LocalDate date;
 
-    @NotNull(message = "Opening stock is required")
-    @Positive(message = "Opening stock must be greater than zero")
-    private Integer openingStock;
-
     @NotNull(message = "Additions is required")
-    @Positive(message = "Additions must be greater than zero")
     private Integer additions;
 
     @NotNull(message = "Deliveries is required")
-    @Positive(message = "Deliveries must be greater than zero")
     private Integer deliveries;
 
     @NotNull(message = "Cooked products is required")
-    @Positive(message = "Cooked products must be greater than zero")
     private Integer cookedProducts;
 
     @NotNull(message = "Remaining products is required")
-    @Positive(message = "Remaining products must be greater than zero")
     private Integer remainingStock;
 
     public Long getProductId() {
@@ -54,14 +45,6 @@ public class CreateInventoryDTO {
 
     public void setDate(LocalDate date) {
         this.date = date;
-    }
-
-    public Integer getOpeningStock() {
-        return openingStock;
-    }
-
-    public void setOpeningStock(Integer openingStock) {
-        this.openingStock = openingStock;
     }
 
     public Integer getAdditions() {

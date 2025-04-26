@@ -1,6 +1,7 @@
 package io.nology.sales_data_management.inventory;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,23 +37,61 @@ public class InventoryService {
             throw new BadRequestException("Inventory already exists");
         }
         
-        // Inventory inventory = modelMapper.map(newInventoryData, Inventory.class);
-        // inventory.setProduct(product);
-        // System.out.println("Inventory before save: " + inventory);
+        Inventory lasInventory = getLatestInventoryBeforeDate(product.getId(), newInventoryData.getDate());
+        int openingStock = lasInventory != null ? lasInventory.getRemainingStock() : 0;
+
+        int totalStock = openingStock + newInventoryData.getAdditions() + newInventoryData.getDeliveries();
+
+        int cookedProducts = newInventoryData.getCookedProducts();
+        int remainingStock = newInventoryData.getRemainingStock();
+
+        if (cookedProducts + remainingStock > totalStock ) {
+            throw new BadRequestException("The total of cooked products and remaining stock cannot exceed the total available stock");
+        }
+
         Inventory inventory = new Inventory();
-    inventory.setProduct(product);
-    inventory.setDate(newInventoryData.getDate());
-    inventory.setOpeningStock(newInventoryData.getOpeningStock());
-    inventory.setAdditions(newInventoryData.getAdditions());
-    inventory.setDeliveries(newInventoryData.getDeliveries());
-    inventory.setCookedProducts(newInventoryData.getCookedProducts());
-    inventory.setRemainingStock(newInventoryData.getRemainingStock());
-    
+        inventory.setProduct(product);
+        inventory.setDate(newInventoryData.getDate());
+        inventory.setOpeningStock(openingStock);
+        inventory.setAdditions(newInventoryData.getAdditions());
+        inventory.setDeliveries(newInventoryData.getDeliveries());
+        inventory.setCookedProducts(cookedProducts);
+        inventory.setRemainingStock(remainingStock);
+        
 
         Inventory savedInventory = inventoryRepository.save(inventory);
         System.out.println("Inventory after save: " + savedInventory);
         return savedInventory;
 
+    }
+  
+    public List<Inventory> getInventoryByProductAndDate(Long productId, LocalDate date) {
+        Product product = productService.getProductById(productId);
+        List<Inventory> inventoryList = inventoryRepository.findByProductAndDate(product, date);
+        if (inventoryList.isEmpty()) {
+            throw new NotFoundException("No inventory found for product " + product.getName() + " on " + date);
+        }
+        return inventoryList;
+    }
+    
+    public List<Inventory> getInventoryByProductAndDateRange(Long productId, LocalDate start, LocalDate end) {
+        if (start.isAfter(end)) {
+            throw new BadRequestException("Start date cannot be after end date");
+        }
+        
+        Product product = productService.getProductById(productId);
+        List<Inventory> inventoryList = inventoryRepository.findByProductAndDateBetween(product, start, end);
+        if (inventoryList.isEmpty()) {
+            throw new NotFoundException("No inventory found for product " + product.getName() + " between " + start + " and " + end);
+        }
+            inventoryList.sort(Comparator.comparing(Inventory::getDate));
+        return inventoryList;
+    }
+
+    public Inventory getLatestInventoryBeforeDate(Long productId, LocalDate date) {
+        Product product = productService.getProductById(productId);
+        return inventoryRepository.findTopByProductAndDateBeforeOrderByDateDesc(product, date)
+            .orElse(null);
     }
 
     public Inventory updateInventory(Long id, UpdateInventoryDTO updateInventoryDTO) {
@@ -87,7 +126,7 @@ public class InventoryService {
 
         return inventoryList;
     }
-
+    
     public List<Inventory> getInventoryByDateRange(LocalDate start, LocalDate end) {
         if (start.isAfter(end)) {
             throw new BadRequestException("Start date cannot be after end date");
@@ -100,26 +139,5 @@ public class InventoryService {
         return inventoryList;
     }
 
-    public List<Inventory> getInventoryByProductAndDate(Long productId, LocalDate date) {
-        Product product = productService.getProductById(productId);
-        List<Inventory> inventoryList = inventoryRepository.findByProductAndDate(product, date);
-        if (inventoryList.isEmpty()) {
-            throw new NotFoundException("No inventory found for product " + product.getName() + " on " + date);
-        }
-        return inventoryList;
-    }
-
-    public List<Inventory> getInventoryByProductAndDateRange(Long productId, LocalDate start, LocalDate end) {
-        if (start.isAfter(end)) {
-            throw new BadRequestException("Start date cannot be after end date");
-        }
-        
-        Product product = productService.getProductById(productId);
-        List<Inventory> inventoryList = inventoryRepository.findByProductAndDateBetween(product, start, end);
-        if (inventoryList.isEmpty()) {
-            throw new NotFoundException("No inventory found for product " + product.getName() + " between " + start + " and " + end);
-        }
-        return inventoryList;
-    }
 
 }
