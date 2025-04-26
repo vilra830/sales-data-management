@@ -30,10 +30,6 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public Product getProductById(Long id) {
-        return productRepository.findById(id).orElseThrow(() -> new NotFoundException("Product with ID "+ id  +" is not found"));
-    }
-
     public Product createProduct(CreateProductDTO newProduct) {
         Optional<Product> existing = productRepository.findByName(newProduct.getName());
         if(existing.isPresent()){
@@ -42,18 +38,7 @@ public class ProductService {
         Product product = modelMapper.map(newProduct, Product.class );
         return productRepository.save(product);
     }
-
-    public Product updateProduct(Long id, UpdateProductDTO updatedProduct) {
-        Optional<Product> result = productRepository.findById(id);
-        if(result.isEmpty()){
-            throw new NotFoundException("No Product with such ID " + id + " is found");
-        }
-        Product product = result.get();
-        modelMapper.map(updatedProduct, product);
-        return productRepository.save(product);
-        
-    }
-
+  
     public void deleteProduct(Long id) {
         Optional<Product> result = productRepository.findById(id);
         if(result.isEmpty()){
@@ -67,5 +52,22 @@ public class ProductService {
         }
         productRepository.deleteById(id);      
     }
+
+    public Product updateProduct(Long id, UpdateProductDTO updatedProduct) {
+        Optional<Product> result = productRepository.findById(id);
+        if(result.isEmpty()){
+            throw new NotFoundException("No Product with such ID " + id + " is found");
+        }
+        Product product = result.get();
+        modelMapper.map(updatedProduct, product);
+        return productRepository.save(product);
+        
+    }
+
+    public Product getProductById(Long id) {
+        return productRepository.findById(id).orElseThrow(() -> new NotFoundException("Product with ID "+ id  +" is not found"));
+    }
+
+
 
 }

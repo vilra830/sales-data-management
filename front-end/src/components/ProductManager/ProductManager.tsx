@@ -1,15 +1,16 @@
-import React, { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "../../state/store";
-import { fetchProducts, addProduct } from "../../state/sales-data/productSlice";
+import React, { useEffect, useState } from "react";
 import { Product } from "../../models/Product";
+import {
+  createProduct,
+  getAllProducts,
+  deleteProduct,
+} from "../../services/api";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import styles from "./ProductManager.module.scss";
-import { deleteProduct, updateProduct } from "../../services/api";
-import { useState } from "react";
+import ErrorBanner from "../ErrorBanner/ErrorBanner";
 
-// Zod schema for validation
 const productSchema = z.object({
   name: z.string().min(1, "Product name is required"),
   price: z
@@ -20,16 +21,10 @@ const productSchema = z.object({
 type ProductFormData = z.infer<typeof productSchema>;
 
 const ProductManager: React.FC = () => {
-  const [formData, setFormData] = useState<Product>({
-    name: "",
-    price: 0,
-  });
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [customError, setCustomError] = useState<string | null>(null);
-
-  const dispatch = useAppDispatch();
-  const { products, loading, error } = useAppSelector(
-    (state) => state.products
-  );
 
   const {
     register,
@@ -41,48 +36,75 @@ const ProductManager: React.FC = () => {
   });
 
   useEffect(() => {
-    dispatch(fetchProducts());
-  }, [dispatch]);
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        const result = await getAllProducts();
+        setProducts(result);
+        setError(null);
+      } catch (err) {
+        setError("Failed to fetch products.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
 
-  const onSubmit = (data: ProductFormData) => {
-    const isDuplicate = products.some(
-      (p) => p.name.toLowerCase().trim() === data.name.toLowerCase().trim()
-    );
-
-    if (isDuplicate) {
-      setCustomError("A product with this name already exists.");
-      return;
-    }
-
+  const onSubmit = async (data: ProductFormData) => {
     setCustomError(null);
-    dispatch(addProduct(data));
-    reset();
+    try {
+      const newProduct = await createProduct(data);
+      setProducts([...products, newProduct]);
+      reset();
+    } catch (error: any) {
+      if (
+        error.response &&
+        error.response.data === "Product name must be unique"
+      ) {
+        setCustomError("A product with this name already exists.");
+      } else {
+        setCustomError("An unexpected error occurred.");
+      }
+    }
   };
 
   const handleDelete = async (productId: number) => {
+    setCustomError(null);
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this product? This action is permanent and cannot be undone."
+      "Are you sure you want to delete this product?"
     );
     if (!confirmDelete) return;
 
     try {
-      await deleteProduct(productId); // <- your API call
-      dispatch(fetchProducts()); // <- refresh the product list
-    } catch (error) {
-      console.error("Error deleting product:", error);
-      alert("Cannot delete a product with existing inventory");
+      await deleteProduct(productId);
+      setProducts(products.filter((p) => p.id !== productId));
+    } catch (error: any) {
+      if (
+        error.response &&
+        error.response.data === "Cannot delete product with existing inventory."
+      ) {
+        setCustomError("Cannot delete product with existing inventory.");
+      } else {
+        setCustomError("An unexpected error occurred.");
+      }
     }
   };
 
   return (
     <div className={styles.container}>
       <h2>📦 Product Manager</h2>
-
+      {/* Show the error banner if customError exists */}
+      {customError && (
+        <ErrorBanner
+          message={customError}
+          onDismiss={() => setCustomError(null)}
+        />
+      )}
       <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
         <div className={styles.formGroup}>
           <label>Name:</label>
           <input {...register("name")} />
-          {customError && <p className={styles.error}>{customError}</p>}
           {errors.name && <p className={styles.error}>{errors.name.message}</p>}
         </div>
 
@@ -117,16 +139,14 @@ const ProductManager: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {products.map((product, index) => (
+          {products.map((product) => (
             <tr key={product.id}>
               <td>{product.name}</td>
               <td>{product.price.toFixed(2)}</td>
               <td className={styles.actions}>
                 <button
                   className={styles.deleteButton}
-                  onClick={() =>
-                    product.id !== undefined && handleDelete(product.id)
-                  }
+                  onClick={() => product.id && handleDelete(product.id)}
                 >
                   Delete
                 </button>

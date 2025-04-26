@@ -8,18 +8,20 @@ import {
   getInventoryByDate,
   getInventoryByProduct,
   getDateRangeReportByProduct,
+  getDailyReportByProductAndDate,
 } from "../../../services/api";
 import { format } from "date-fns";
 import axios from "axios";
+import ErrorBanner from "../../ErrorBanner/ErrorBanner";
 
 const InventoryManager: React.FC = () => {
   const [inventory, setInventory] = useState<Inventory[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [customError, setCustomError] = useState<string | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProductId, setSelectedProductId] = useState<number | "">("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  //   const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [formData, setFormData] = useState<Inventory>({
     product: { id: undefined, name: "", price: 0 },
     date: format(new Date(), "yyyy-MM-dd"),
@@ -47,13 +49,19 @@ const InventoryManager: React.FC = () => {
           );
           setInventory(data);
         } else if (startDate) {
-          const data = await getInventoryByDate(startDate);
+          const data = await getDailyReportByProductAndDate(
+            selectedProductId as number,
+            startDate
+          );
           setInventory(data);
         } else {
           setError("Please select at least one date.");
         }
+      } else if (selectedProductId === 0 && startDate) {
+        const data = await getInventoryByDate(startDate);
+        setInventory(data);
       } else {
-        setError("Please select a product.");
+        setError("Please select at least one date.");
       }
     } catch (err) {
       console.error("Filter error:", err);
@@ -66,7 +74,7 @@ const InventoryManager: React.FC = () => {
         setError("An unexpected error occurred.");
       }
 
-      setInventory([]); // Optional: clear inventory on error
+      setInventory([]); //clear inventory on error
     }
   };
 
@@ -84,23 +92,37 @@ const InventoryManager: React.FC = () => {
     }
   };
 
+  //
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setCustomError(null);
     try {
       const result = await createInventoryEntry(formData);
       alert("Inventory created!");
       setInventory([...inventory, result]);
-      
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating inventory:", error);
+
+      if (axios.isAxiosError(error)) {
+        setCustomError(
+          error.response?.data || "Something went wrong. Please try again."
+        );
+      } else {
+        setCustomError("An unexpected error occurred.");
+      }
     }
-    
   };
 
   return (
     <div className={styles.container}>
       <h2>Inventory Manager</h2>
-
+      {/* Show the error banner if customError exists */}
+      {customError && (
+        <ErrorBanner
+          message={customError}
+          onDismiss={() => setCustomError(null)}
+        />
+      )}
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.formGroup}>
           <label htmlFor="product">Product</label>
@@ -180,10 +202,11 @@ const InventoryManager: React.FC = () => {
           <button type="submit">Create Inventory</button>
         </div>
       </form>
+
       <div className={styles.filters}>
         <h4>Filter Inventory</h4>
         <select
-          onChange={(e) => setSelectedProductId(Number(e.target.value))}
+          onChange={(e) => setSelectedProductId(Number(e.target.value) || 0)}
           value={selectedProductId}
         >
           <option value="">All Products</option>
