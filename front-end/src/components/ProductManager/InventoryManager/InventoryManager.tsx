@@ -13,6 +13,8 @@ import {
 import { format } from "date-fns";
 import axios from "axios";
 import ErrorBanner from "../../ErrorBanner/ErrorBanner";
+import { ChartData } from "../../../models/ChartData";
+import SalesChart from "../../SalesChart/SalesChart";
 
 const InventoryManager: React.FC = () => {
   const [inventory, setInventory] = useState<Inventory[]>([]);
@@ -31,10 +33,13 @@ const InventoryManager: React.FC = () => {
     cookedProducts: 0,
     remainingStock: 0,
   });
+  const [chartData, setChartData] = useState<ChartData[]>([]);
 
   useEffect(() => {
     getAllProducts().then(setProducts);
   }, []);
+
+  const selectedProduct = products.find((p) => p.id === selectedProductId);
 
   const handleFilter = async () => {
     setError(null); //
@@ -48,6 +53,12 @@ const InventoryManager: React.FC = () => {
             endDate
           );
           setInventory(data);
+          const mappedChartData = data.map((entry) => ({
+            date: entry.date,
+            sold: entry.sold || 0,
+            totalSales: entry.totalSalesPerProduct || 0,
+          }));
+          setChartData(mappedChartData);
         } else if (startDate) {
           const data = await getDailyReportByProductAndDate(
             selectedProductId as number,
@@ -271,6 +282,13 @@ const InventoryManager: React.FC = () => {
           ))}
         </tbody>
       </table>
+
+      {chartData.length > 0 && (
+        <>
+          <h3>Sales Performance for {selectedProduct?.name}</h3>
+          <SalesChart data={chartData} />
+        </>
+      )}
     </div>
   );
 };
